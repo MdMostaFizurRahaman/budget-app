@@ -25,7 +25,7 @@
                     <div class="card text-white bg-primary mb-3">
                         <div class="card-header">Total Budget</div>
                         <div class="card-body">
-                          <h5 class="card-title">$2500.00 USD</h5>
+                          <h5 class="card-title">${{budget}} USD</h5>
                         </div>
                     </div>
                 </div>
@@ -34,7 +34,7 @@
                     <div class="card text-white bg-success mb-3">
                         <div class="card-header">Total Income</div>
                         <div class="card-body">
-                          <h5 class="card-title">$2500.00 USD</h5>
+                          <h5 class="card-title">${{income}} USD</h5>
                         </div>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                     <div class="card text-white bg-danger mb-3">
                         <div class="card-header">Total Expense</div>
                         <div class="card-body">
-                          <h5 class="card-title">$2500.00 USD</h5>
+                          <h5 class="card-title">${{expense}} USD</h5>
                         </div>
                     </div>
                 </div>
@@ -53,10 +53,10 @@
             <div class="row justify-content-center">
                 <div class="col-md-6">
                     <h3>Add Your Input Here</h3>
-                    <form>
+                    <form @submit.prevent="handleInput">
                         <div class="mb-3">
                           <label for="exampleInputEmail1" class="form-label">Amount</label>
-                          <input type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                          <input v-model="amount" type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
                         </div>
                         <div class="mb-3">
                           <label for="exampleInputPassword1" class="form-label">Type</label>
@@ -72,15 +72,26 @@
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
     <script>
         new Vue({
             el: '#app',
             data: {
                 appName: "Budget App",
-                budget: 2500,
                 income: 5000,
-                expense: 2000
+                expense: 2000,
+                amount: null,
+            }, 
+            computed: {
+                budget: function(){
+                    return this.income - this.expense;
+                }
+            },
+            methods:{
+                handleInput(){
+                    this.income += parseFloat(this.amount);
+                    this.amount = null;
+                }
             }
         })
     </script>
