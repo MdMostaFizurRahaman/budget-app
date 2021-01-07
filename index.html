@@ -15,17 +15,17 @@
         <!-- As a heading -->
         <nav class="navbar navbar-light bg-light">
             <div class="container-fluid">
-                <span class="navbar-brand mb-0 h1">{{appName}}</span>
+                <span class="navbar-brand mb-0 h1">{{ appName }}</span>
             </div>
         </nav>
 
         <div class="container mt-5">
-            <div class="row">
+            <div class="row mb-5">
                 <div class="col-md-4">
                     <div class="card text-white bg-primary mb-3">
                         <div class="card-header">Total Budget</div>
                         <div class="card-body">
-                          <h5 class="card-title">${{budget}} USD</h5>
+                            <h5 class="card-title">${{ budget }} USD</h5>
                         </div>
                     </div>
                 </div>
@@ -34,7 +34,7 @@
                     <div class="card text-white bg-success mb-3">
                         <div class="card-header">Total Income</div>
                         <div class="card-body">
-                          <h5 class="card-title">${{income}} USD</h5>
+                            <h5 class="card-title">${{ totalIncome }} USD</h5>
                         </div>
                     </div>
                 </div>
@@ -43,57 +43,140 @@
                     <div class="card text-white bg-danger mb-3">
                         <div class="card-header">Total Expense</div>
                         <div class="card-body">
-                          <h5 class="card-title">${{expense}} USD</h5>
+                            <h5 class="card-title">${{ totalExpense }} USD</h5>
                         </div>
                     </div>
                 </div>
 
-                
+
             </div>
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <h3>Add Your Input Here</h3>
-                    <form @submit.prevent="handleInput">
-                        <div class="mb-3">
-                          <label for="exampleInputEmail1" class="form-label">Amount</label>
-                          <input v-model="amount" type="number" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-10">
+                    <div class="alert alert-danger" role="alert" v-if="error">
+                        Something went wrong.
+                    </div>
+
+                    <!-- <div class="alert alert-success" v-else>
+                        Transaction added successfully.
+                    </div> -->
+                    <form class="row" @submit.prevent="handleInput">
+
+                        <div class="col-md-4 mb-3">
+                            <input v-model="formData.description" type="text" class="form-control"
+                                id="exampleInputEmail1" placeholder="Add Description...">
                         </div>
-                        <div class="mb-3">
-                          <label for="exampleInputPassword1" class="form-label">Type</label>
-                          <select name="" id="" class="form-control">
-                              <option value="income">Income</option>
-                              <option value="expense">Expense</option>
-                          </select>
+
+                        <div class="col-md-4 mb-3">
+                            <input v-model="formData.amount" type="number" class="form-control" id="exampleInputEmail1"
+                                placeholder="Add Amount...">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Add</button>
+                        <div class="col-md-2 mb-3">
+                            <select name="" id="" class="form-select" v-model="formData.type">
+                                <option value="">Select Type</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Add</button>
+                        </div>
                     </form>
+                </div>
+            </div>
+
+            <div class="row">
+                <h3 class="text-center mb-5">
+                    Transaction History
+                </h3>
+                <div class="col-md-6">
+                    <h5 class="text-center">Income History</h5>
+                    <table class="table table-responsive">
+                        <thead>
+                            <th>Id</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 class="text-center">Expense History</h5>
+                    <table class="table table-responsive">
+                        <thead>
+                            <th>Id</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </thead>
+                    </table>
                 </div>
             </div>
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://unpkg.com/vue@next"></script>
     <script>
-        new Vue({
-            el: '#app',
-            data: {
-                appName: "Budget App",
-                income: 5000,
-                expense: 2000,
-                amount: null,
-            }, 
-            computed: {
-                budget: function(){
-                    return this.income - this.expense;
+        const app = Vue.createApp({
+            data() {
+                return {
+                    appName: "Budget App",
+                    totalIncome: 0,
+                    totalExpense: 0,
+                    error: false,
+                    formData: {
+                        amount: null,
+                        description: null,
+                        type: 'income',
+                    }
                 }
             },
-            methods:{
-                handleInput(){
-                    this.income += parseFloat(this.amount);
-                    this.amount = null;
+            computed: {
+                budget: function () {
+                    return this.totalIncome - this.totalExpense;
+                }
+            },
+            methods: {
+                handleInput() {
+                    if (this.validate()) {
+                        if (this.formData.type == 'income') {
+                            this.totalIncome += parseFloat(this.formData.amount);
+                        } else {
+                            this.totalExpense += parseFloat(this.formData.amount);
+                        }
+
+                        this.error = false;
+                    } else {
+                        this.error = true;
+                    }
+
+
+                    this.reset();
+                },
+
+                reset() {
+                    this.formData = {
+                        amount: null,
+                        description: null,
+                        type: 'income',
+                    }
+                },
+
+                validate() {
+                    if (this.formData.amount == null || this.formData.amount == '') {
+                        return false;
+                    }
+
+                    if (this.formData.description == null || this.formData.description == '') {
+                        return false;
+                    }
+
+                    return true;
                 }
             }
         })
+
+        app.mount('#app')
     </script>
 </body>
 
